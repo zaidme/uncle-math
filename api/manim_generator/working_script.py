@@ -24,177 +24,177 @@ class MathProblemSolver:
         """Get solution steps from Claude API or test data"""
         if self.test_mode:
             print("Running in test mode")
-            test_data = {
-                "problem_type": "calculus",
-                "initial_problem": "Show how sin(x) transforms into sin(2x)",
-                "concept_introduction": "We're exploring how changing the input to a sine function affects its graph",
-                "prerequisite_knowledge": [
-                    "Basic trigonometry and sine function",
-                    "Understanding of function transformations"
-                ],
-                "steps": [
-                    {
-                        "equation": "f(x) = \\sin(x)",
-                        "explanation": "Starting with the basic sine function",
-                        "conceptual_explanation": "The sine function is periodic with period 2π",
-                        "technical_explanation": "This is our baseline function",
-                        "real_world_connection": "Sine waves appear in sound waves and oscillations",
-                        "actions": [
-                            {
-                                "type": "graph",
-                                "params": {
-                                    "function": "math.sin(x)",
-                                    "x_range": [-2*math.pi, 2*math.pi, 1],
-                                    "y_range": [-1.5, 1.5, 0.5]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "equation": "f(2x) = \\sin(2x)",
-                        "explanation": "Doubling the input compresses the graph horizontally",
-                        "conceptual_explanation": "When we multiply x by 2, the function completes its cycle twice as fast",
-                        "technical_explanation": "The period is now π instead of 2π",
-                        "real_world_connection": "This is like doubling the frequency of a sound wave",
-                        "actions": [
-                            {
-                                "type": "function_transform",
-                                "params": {
-                                    "from_function": "math.sin(x)",
-                                    "to_function": "math.sin(2*x)",
-                                    "transition_time": 3
-                                }
-                            }
-                        ]
+            test_data = test_data = {
+    "problem_type": "calculus",
+    "initial_problem": "why is e^x differentiated still e^x",
+    "steps": [
+        {
+            "equation": "y = e^x",
+            "explanation": "Let's start with the basic exponential function",
+            "actions": [
+                {
+                    "type": "graph",
+                    "params": {
+                        "function": "2.718281828459045**x",
+                        "x_range": [-2, 2, 0.5],
+                        "y_range": [0, 8, 1]
                     }
-                ],
-                "final_answer": "The period of sin(2x) is π, which is half the period of sin(x)",
-                "solution_context": "This demonstrates how input transformations affect periodic functions",
-                "common_mistakes": [
-                    "Confusing horizontal compression with vertical stretching",
-                    "Forgetting that multiplying x by 2 makes the period smaller, not larger"
-                ],
-                "further_applications": [
-                    "This concept applies to all periodic functions",
-                    "Understanding frequency and period relationships in physics"
-                ]
-            }
+                }
+            ]
+        },
+        {
+            "equation": "\\frac{d}{dx}[e^x] = \\lim_{h \\to 0} \\frac{e^{x+h} - e^x}{h}",
+            "explanation": "Using the definition of derivative",
+            "actions": [
+                {
+                    "type": "highlight",
+                    "params": {
+                        "target": "\\lim_{h \\to 0}",
+                        "color": "BLUE"
+                    }
+                }
+            ]
+        },
+        {
+            "equation": "= \\lim_{h \\to 0} \\frac{e^x(e^h - 1)}{h}",
+            "explanation": "Factor out e^x from numerator",
+            "actions": [
+                {
+                    "type": "highlight",
+                    "params": {
+                        "target": "e^x",
+                        "color": "GREEN"
+                    }
+                }
+            ]
+        },
+        {
+            "equation": "= e^x \\lim_{h \\to 0} \\frac{e^h - 1}{h}",
+            "explanation": "Pull e^x out of limit as it's constant with respect to h",
+            "actions": [
+                {
+                    "type": "highlight",
+                    "params": {
+                        "target": "\\lim_{h \\to 0} \\frac{e^h - 1}{h}",
+                        "color": "RED"
+                    }
+                }
+            ]
+        },
+        {
+            "equation": "= e^x \\cdot 1",
+            "explanation": "The limit evaluates to 1 (this is a fundamental limit)",
+            "actions": [
+                {
+                    "type": "highlight",
+                    "params": {
+                        "target": "1",
+                        "color": "YELLOW"
+                    }
+                }
+            ]
+        }
+    ],
+    "final_answer": "\\frac{d}{dx}[e^x] = e^x",
+    "solution_context": "e^x is unique because its derivative equals itself. This happens because the exponential function e^x has a special property where its rate of change at any point is proportional to its value at that point, with a proportionality constant of 1. This is why e^x is so important in modeling natural phenomena where the rate of change is proportional to the current value, such as population growth or radioactive decay."
+}
             return test_data
             
         try:
-            prompt = """Please analyze this math problem and explain both the underlying concepts and the solution steps. Structure your response as JSON following this format. You can use these animation actions:
+            prompt = f"""You are a math solution JSON generator. Respond ONLY with a JSON object, no other text. Analyze and provide solution for: {problem}
 
-    1. Graph Function:
-    {
-        "type": "graph",
-        "params": {
-            "function": "math expression (e.g., 'math.sin(x)', 'x**2')",
-            "x_range": [-5, 5, 1],  // [start, end, step]
-            "y_range": [-5, 5, 1],
-            "points": [  // optional points to highlight
-                { "x": 0, "y": 0, "label": "O" }
-            ],
-            "discontinuities": [],  // optional x-values where function is discontinuous
-            "h_lines": [  // optional horizontal lines
-                { "y": 0, "label": "y=0" }
+JSON structure must be exactly:
+{{
+    "problem_type": "algebraic/geometric/calculus/etc",
+    "initial_problem": "{problem}",
+    "steps": [
+        {{
+            "equation": "step equation",
+            "explanation": "step explanation",
+            "actions": [
+                {{
+                    "type": "action_name",
+                    "params": {{
+                        // parameters specific to action type
+                    }}
+                }}
             ]
-        }
-    }
+        }}
+    ],
+    "final_answer": "final answer",
+    "solution_context": "explanation of solution"
+}}
 
-    2. Track Point on Graph:
-    {
-        "type": "track_point",
-        "params": {
-            "function": "math expression",
-            "x_value": 0,  // starting x value
-            "animate_to": 2,  // optional end x value
-            "show_coordinates": true
-        }
-    }
+Available actions:
+- Basic Actions:
+  "highlight": Highlight part of an equation
+    params: {{"target": "term to highlight", "color": "color_name"}}
+  "clear": Clear temporary visualizations
+    params: {{"target": "all/graph/shapes/etc"}}
 
-    3. Coordinate Lines:
-    {
-        "type": "coordinate_lines",
-        "params": {
-            "x": 1,
-            "y": 2,
-            "show_coordinates": true,
-            "label": "P(1,2)"
-        }
-    }
+- Graph Actions:
+  "graph": Create/update a graph
+    params: {{
+      "function": "function to plot",
+      "x_range": [-5, 5, 1],
+      "y_range": [-5, 10, 1],
+      "points": [{"x": number, "y": number, "label": "label"}],
+      "h_lines": [{"y": number, "label": "label"}],
+      "discontinuities": [number]  // x-values where function is discontinuous
+    }}
+  "coordinate_lines": Add tracking lines to a point
+    params: {{
+      "x": number,
+      "y": number,
+      "label": "label",
+      "show_coordinates": true/false
+    }}
+  "track_point": Create a point that tracks a function
+    params: {{
+      "function": "function to track",
+      "x_value": number,
+      "animate_to": number  // x value to animate to
+    }}
 
-    4. Function Transform:
-    {
-        "type": "function_transform",
-        "params": {
-            "from_function": "math.sin(x)",
-            "to_function": "math.sin(2*x)",
-            "transition_time": 2
-        }
-    }
+- Transform Actions:
+  "transform": Apply transformation to an object
+    params: {{
+      "target": "object_id",
+      "type": "rotate/stretch/scale",
+      "value": number,
+      "axis": "x/y"  // for stretch
+    }}
+  "function_transform": Transform one function to another
+    params: {{
+      "from_function": "initial function",
+      "to_function": "final function",
+      "transition_time": number
+    }}
+  "complex_transform": Apply complex function transform
+    params: {{
+      "function": "z**2" // example complex function
+    }}
 
-    5. Highlight Parts of Equation:
-    {
-        "type": "highlight",
-        "params": {
-            "target": "part to highlight",
-            "color": "YELLOW"  // BLUE, RED, GREEN, etc.
-        }
-    }
+- Text and Layout Actions:
+  "text_gradient": Create gradient-colored text
+    params: {{
+      "text": "text to display",
+      "colors": ["color1", "color2"],
+      "direction": "horizontal/vertical"
+    }}
+  "grid_layout": Create a grid of objects
+    params: {{
+      "items": ["item1", "item2"],
+      "rows": number,
+      "cols": number
+    }}
 
-    Please provide the solution in this format:
-    {
-        "problem_type": "type of math problem (algebra, calculus, etc.)",
-        "initial_problem": "[PROBLEM]",
-        "concept_introduction": "Brief explanation of the key mathematical concepts involved",
-        "prerequisite_knowledge": [
-            "List of important concepts the student should understand",
-            "Include brief explanations of these prerequisites"
-        ],
-        "steps": [
-            {
-                "equation": "mathematical equation in LaTeX",
-                "explanation": "Clear explanation combining both:",
-                "conceptual_explanation": "Why we're doing this step and how it relates to the broader concept",
-                "technical_explanation": "What mathematical operations we're performing",
-                "real_world_connection": "Optional connection to real-world applications or intuitive examples",
-                "actions": [
-                    // Use any of the animation types above
-                    // You can use multiple actions per step
-                ]
-            }
-        ],
-        "final_answer": "concise final solution",
-        "solution_context": "broader mathematical context or key insights",
-        "common_mistakes": [
-            "List common misconceptions or errors students might make",
-            "Include why these mistakes happen and how to avoid them"
-        ],
-        "further_applications": [
-            "Where else this concept appears in mathematics",
-            "How this connects to more advanced topics"
-        ]
-    }
-
-    For the math problem: [PROBLEM]
-
-    Important guidelines:
-    1. Ensure all LaTeX equations are properly escaped with double backslashes
-    2. Make explanations clear and conceptual - focus on understanding, not just procedures
-    3. Use appropriate actions to visualize each step
-    4. Break down complex transformations into multiple steps
-    5. Connect abstract concepts to concrete examples or visualizations
-    6. Include both "why" and "how" in your explanations
-    7. Return only valid JSON - no additional text or explanations outside the JSON structure
-
-    Remember to:
-    - Start with foundational concepts before advancing to complex operations
-    - Use visualizations to support conceptual understanding
-    - Connect each step to the broader mathematical principles
-    - Provide intuitive explanations alongside formal mathematics
-    - Address common points of confusion
-    - Show how concepts build upon each other
-    """
+Rules:
+1. Functions must be valid Python math (e.g., '2*x + 3' not '2x + 3')
+2. All numeric values must be actual numbers
+3. Each step must include at least one action
+4. Colors should be from: BLUE, RED, GREEN, YELLOW, WHITE
+5. Response must be ONLY the JSON object, no other text"""
 
             # Replace placeholder with actual problem
             prompt = prompt.replace("[PROBLEM]", problem)
@@ -271,9 +271,7 @@ class EnhancedMathSolutionScene(Scene):
         }
         self.avatar_path = avatar_path or "assets/avatar_icon.png"
 
- 
-
-# Reading speed configuration
+        # Reading speed configuration
         self.words_per_minute = 250
         self.min_wait_time = 1.5
         self.max_wait_time = 5
@@ -647,7 +645,7 @@ class EnhancedMathSolutionScene(Scene):
 
 
     def construct(self):
-    # Initial problem statement
+        # Initial problem statement
         title = Text(
             self.solution_data['initial_problem'],
             color=WHITE,
@@ -661,15 +659,6 @@ class EnhancedMathSolutionScene(Scene):
         current_exp_box = None
         equation_group = VGroup().shift(UP * 2).to_edge(LEFT, buff=1)  # Container for equations
         
-        # Create concept introduction box
-        intro_box = self.create_explanation_box(self.solution_data['concept_introduction'])
-        self.play(
-            FadeIn(intro_box[0]),  # Box
-            FadeIn(intro_box[1]),  # Avatar
-            Write(intro_box[2])    # Text
-        )
-        self.wait(self.calculate_read_time(self.solution_data['concept_introduction']))
-        
         for step in self.solution_data["steps"]:
             # Clear previous step's content if it exists
             if current_eq:
@@ -681,9 +670,7 @@ class EnhancedMathSolutionScene(Scene):
             new_eq = MathTex(step["equation"], color=WHITE)
             new_eq.move_to(equation_group)  # Position equation in designated area
             
-            new_exp_box = self.create_explanation_box(
-                f"{step['conceptual_explanation']}\n{step['technical_explanation']}"
-            )
+            new_exp_box = self.create_explanation_box(step["explanation"])
             
             # Phase 1: Handle equation transition
             if current_eq is None:
@@ -698,11 +685,7 @@ class EnhancedMathSolutionScene(Scene):
             eq_read_time = self.calculate_read_time(step["equation"], has_math=True)
             self.wait(eq_read_time)
             
-            # Phase 2: Bring in explanation (replace old one if it exists)
-            if intro_box:
-                self.play(FadeOut(intro_box))
-                intro_box = None
-            
+            # Phase 2: Bring in explanation
             if current_exp_box is None:
                 self.play(
                     FadeIn(new_exp_box[0]),  # Box
@@ -719,9 +702,7 @@ class EnhancedMathSolutionScene(Scene):
                 )
             
             # Wait for explanation to be read
-            exp_read_time = self.calculate_read_time(
-                f"{step['conceptual_explanation']}\n{step['technical_explanation']}"
-            )
+            exp_read_time = self.calculate_read_time(step["explanation"])
             self.wait(exp_read_time)
             
             # Phase 3: Handle animations for this step
@@ -747,11 +728,7 @@ class EnhancedMathSolutionScene(Scene):
             self.wait(self.transition_pause)
 
         # Create final explanation combining final answer and context
-        final_text = (
-            f"Final Answer: {self.solution_data['final_answer']}\n\n"
-            f"{self.solution_data['solution_context']}\n\n"
-            f"Common Mistakes to Avoid:\n{', '.join(self.solution_data['common_mistakes'])}"
-        )
+        final_text = f"Final Answer: {self.solution_data['final_answer']}\n\n{self.solution_data['solution_context']}"
         final_exp_box = self.create_explanation_box(final_text)
         
         # Clean up previous objects
