@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Run the setup script
-bash setup.sh
+# Install system dependencies
+apk add --no-cache libpango1.0-dev pkg-config python3-dev
+
+# Install Python dependencies
+python3 -m pip install --no-cache-dir -r requirements.txt
 
 # Build the Next.js application
 npm run build
