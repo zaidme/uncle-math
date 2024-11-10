@@ -24,86 +24,116 @@ class MathProblemSolver:
         """Get solution steps from Claude API or test data"""
         if self.test_mode:
             print("Running in test mode")
-            test_data = test_data = {
-    "problem_type": "calculus",
-    "initial_problem": "why is e^x differentiated still e^x",
+            test_data = {
+    "problem_type": "algebraic",
+    "initial_problem": "Find the vertex of x^2 + 3x + 2 = 0",
     "steps": [
         {
-            "equation": "y = e^x",
-            "explanation": "Let's start with the basic exponential function",
+            "equation": "x^2 + 3x + 2 = 0",
+            "explanation": "The given quadratic equation has the form ax^2 + bx + c. We need to find the vertex of this parabola.",
             "actions": [
                 {
-                    "type": "graph",
-                    "params": {
-                        "function": "2.718281828459045**x",
-                        "x_range": [-2, 2, 0.5],
-                        "y_range": [0, 8, 1]
+                    "graph": {
+                        "function": "x**2 + 3*x + 2",
+                        "x_range": [-5, 5, 1],
+                        "y_range": [-5, 10, 1],
+                        "points": [],
+                        "h_lines": [],
+                        "discontinuities": []
                     }
                 }
             ]
         },
         {
-            "equation": "\\frac{d}{dx}[e^x] = \\lim_{h \\to 0} \\frac{e^{x+h} - e^x}{h}",
-            "explanation": "Using the definition of derivative",
+            "equation": "h = -b / (2a)",
+            "explanation": "Use the vertex formula for the x-coordinate of the vertex of a parabola, where a is the coefficient of x^2 and b is the coefficient of x.",
             "actions": [
                 {
-                    "type": "highlight",
-                    "params": {
-                        "target": "\\lim_{h \\to 0}",
-                        "color": "BLUE"
-                    }
-                }
-            ]
-        },
-        {
-            "equation": "= \\lim_{h \\to 0} \\frac{e^x(e^h - 1)}{h}",
-            "explanation": "Factor out e^x from numerator",
-            "actions": [
-                {
-                    "type": "highlight",
-                    "params": {
-                        "target": "e^x",
+                    "highlight": {
+                        "target": "-b / (2a)",
                         "color": "GREEN"
                     }
                 }
             ]
         },
         {
-            "equation": "= e^x \\lim_{h \\to 0} \\frac{e^h - 1}{h}",
-            "explanation": "Pull e^x out of limit as it's constant with respect to h",
+            "equation": "h = -3 / (2 * 1)",
+            "explanation": "Substitute a = 1 and b = 3 into the vertex formula.",
             "actions": [
                 {
-                    "type": "highlight",
-                    "params": {
-                        "target": "\\lim_{h \\to 0} \\frac{e^h - 1}{h}",
+                    "highlight": {
+                        "target": "-3 / (2 * 1)",
                         "color": "RED"
                     }
                 }
             ]
         },
         {
-            "equation": "= e^x \\cdot 1",
-            "explanation": "The limit evaluates to 1 (this is a fundamental limit)",
+            "equation": "h = -1.5",
+            "explanation": "Calculate the x-coordinate of the vertex.",
             "actions": [
                 {
-                    "type": "highlight",
-                    "params": {
-                        "target": "1",
+                    "highlight": {
+                        "target": "-1.5",
                         "color": "YELLOW"
+                    }
+                },
+                {
+                    "track_point": {
+                        "function": "x**2 + 3*x + 2",
+                        "x_value": -1.5,
+                        "animate_to": 1
+                    }
+                }
+            ]
+        },
+        {
+            "equation": "k = f(h) = (-1.5)^2 + 3(-1.5) + 2",
+            "explanation": "Substitute h = -1.5 back into the function to find the y-coordinate, k, of the vertex.",
+            "actions": [
+                {
+                    "highlight": {
+                        "target": "f(h) = (-1.5)^2 + 3(-1.5) + 2",
+                        "color": "GREEN"
+                    }
+                }
+            ]
+        },
+        {
+            "equation": "k = 2.25 - 4.5 + 2",
+            "explanation": "Calculate the expression inside f(h).",
+            "actions": [
+                {
+                    "highlight": {
+                        "target": "2.25 - 4.5 + 2",
+                        "color": "WHITE"
+                    }
+                }
+            ]
+        },
+        {
+            "equation": "k = -0.25",
+            "explanation": "Compute the y-coordinate of the vertex.",
+            "actions": [
+                {
+                    "highlight": {
+                        "target": "-0.25",
+                        "color": "RED"
                     }
                 }
             ]
         }
     ],
-    "final_answer": "\\frac{d}{dx}[e^x] = e^x",
-    "solution_context": "e^x is unique because its derivative equals itself. This happens because the exponential function e^x has a special property where its rate of change at any point is proportional to its value at that point, with a proportionality constant of 1. This is why e^x is so important in modeling natural phenomena where the rate of change is proportional to the current value, such as population growth or radioactive decay."
+    "final_answer": "The vertex is (-1.5, -0.25).",
+    "solution_context": "The vertex of a quadratic function ax^2 + bx + c is found using the formula for the x-coordinate h = -b/(2a) and substituting this back into the function to find the y-coordinate k. In this case, the vertex represents the lowest point on the graph of the quadratic since the parabola opens upwards."
 }
+
             return test_data
             
         try:
-            prompt = f"""You are a math solution JSON generator. Respond ONLY with a JSON object, no other text. Analyze and provide solution for: {problem}
+            prompt = f"""You are a math visual solution JSON generator. Respond ONLY with a JSON object, no other text. Analyze and provide solution for: {problem}
 
-JSON structure must be exactly:
+JSON structure mMUST STRICTLY FOLLOW:
 {{
     "problem_type": "algebraic/geometric/calculus/etc",
     "initial_problem": "{problem}",
@@ -257,7 +287,8 @@ Rules:
 
         finally:
             print("Finished processing solution request")
-        
+
+    
 class EnhancedMathSolutionScene(Scene):
     def __init__(self, problem, avatar_path=None, test_mode=False, test_data=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -280,6 +311,52 @@ class EnhancedMathSolutionScene(Scene):
         # Transition timing configuration
         self.equation_write_time = 1    # Time to write/transform equation
         self.transition_pause = 0.5     # Brief pause between elements
+
+
+    def convert_symbols_to_latex(self,equation):
+            """Convert Unicode math symbols to LaTeX commands"""
+            replacements = {
+                '√': '\\sqrt',
+                'π': '\\pi',
+                'θ': '\\theta',
+                '∞': '\\infty',
+                'α': '\\alpha',
+                'β': '\\beta',
+                'Δ': '\\Delta',
+                'μ': '\\mu',
+                'σ': '\\sigma',
+                '±': '\\pm',
+                '∓': '\\mp',
+                '×': '\\times',
+                '÷': '\\div',
+                '≠': '\\neq',
+                '≤': '\\leq',
+                '≥': '\\geq',
+                '∈': '\\in',
+                '∉': '\\notin',
+                '⊂': '\\subset',
+                '⊆': '\\subseteq',
+                '∪': '\\cup',
+                '∩': '\\cap',
+                '∫': '\\int',
+                '∑': '\\sum',
+                '∏': '\\prod',
+                '∂': '\\partial',
+                '∇': '\\nabla',
+                '∀': '\\forall',
+                '∃': '\\exists',
+                '→': '\\rightarrow',
+                '←': '\\leftarrow',
+                '↔': '\\leftrightarrow',
+                '⇒': '\\Rightarrow',
+                '⇐': '\\Leftarrow',
+                '⇔': '\\Leftrightarrow'
+            }
+            
+            for unicode_char, latex_cmd in replacements.items():
+                equation = equation.replace(unicode_char, latex_cmd)
+            return equation
+        
 
     def calculate_read_time(self, text, has_math=False):
         """Calculate appropriate wait time based on text length."""
@@ -487,161 +564,180 @@ class EnhancedMathSolutionScene(Scene):
                         graph_group.add(h_line)
         
         return graph_group.scale(0.5).to_edge(RIGHT)
+    
+    def transform_equation(self, old_eq, new_eq_text):
+        """Transform one equation into another with smooth animation"""
+        # Convert the new equation text to LaTeX
+        new_eq_latex = self.convert_symbols_to_latex(new_eq_text)
+        new_eq = MathTex(new_eq_latex, color=WHITE)
+        
+        # Position the new equation in the same location as the old one
+        new_eq.move_to(old_eq)
+        
+        # Create the transformation animation
+        transform = TransformMatchingTex(
+            old_eq,
+            new_eq,
+            path_arc=90 * DEGREES,  # Add an arc to make the transform more visible
+            run_time=2,
+            lag_ratio=0.5  # Makes the transform smoother by staggering individual characters
+        )
+        
+        return transform, new_eq
 
 
     def handle_action(self, action, equation_obj):
-        """Enhanced action handler with new actions"""
-        """Enhanced action handler with new actions"""
-        action_type = action["type"]
-        params = action.get("params", {})
-        
-        if action_type == "highlight":
-            target = params.get("target")
-            color = globals().get(params.get("color", "YELLOW"))
+            action_type = action["type"]
+            params = action.get("params", {})
             
-            # Find the target term in the equation
-            # We'll create a new equation with the target term highlighted
-            highlighted_eq = equation_obj.copy()
-            
-            # If the equation is a MathTex object, we can highlight specific parts
-            if isinstance(equation_obj, MathTex):
-                # Find all substrings that match the target
-                for i, part in enumerate(highlighted_eq.tex_strings):
-                    if target in part:
-                        highlighted_eq[i].set_color(color)
+            if action_type == "highlight" and equation_obj is not None:
+                    target = params.get("target")
+                    if not target:
+                        return None
+                    
+                    color = globals().get(params.get("color", "YELLOW"))
+                    highlighted_eq = equation_obj.copy()
+                    
+                    if isinstance(equation_obj, MathTex):
+                        found = False
+                        for i, part in enumerate(highlighted_eq.tex_strings):
+                            if target in part:
+                                highlighted_eq[i].set_color(color)
+                                found = True
+                        
+                        if found:
+                            return [FadeOut(equation_obj), FadeIn(highlighted_eq)]
+                    
+                    return None
                 
-                # Create the animation sequence
-                return AnimationGroup(
-                    FadeOut(equation_obj),
-                    FadeIn(highlighted_eq)
+                
+            elif action_type == "graph":
+                graph = self.create_graph(params)
+                if self.persistent_objects["graph"] is None:
+                    self.persistent_objects["graph"] = graph
+                    return Create(graph)
+                else:
+                    old_graph = self.persistent_objects["graph"]
+                    self.persistent_objects["graph"] = graph
+                    return ReplacementTransform(old_graph, graph)
+                    
+            elif action_type == "clear":
+                animations = []
+                target = params.get("target", "all")
+                if target in ["all", "shapes"]:
+                    for shape in self.persistent_objects["shapes"]:
+                        animations.append(FadeOut(shape))
+                    self.persistent_objects["shapes"] = []
+                return AnimationGroup(*animations) if animations else None
+                
+            elif action_type == "track_point":
+                point = self.create_tracking_point(params)
+                if point:
+                    self.persistent_objects["tracking_points"][params["function"]] = point
+                    if params.get("animate_to"):
+                        x_start = params["x_value"]
+                        x_end = params["animate_to"]
+                        
+                        def update_point(mob, alpha):
+                            x = x_start + (x_end - x_start) * alpha
+                            y = eval(params["function"].replace("x", str(x)))
+                            mob.move_to(self.persistent_objects["graph"][0].c2p(x, y))
+                        
+                        return UpdateFromAlphaFunc(point, update_point)
+                    return Create(point)
+                    
+            elif action_type == "function_transform":
+                if not self.persistent_objects["graph"]:
+                    return None
+                    
+                old_graph = self.persistent_objects["graph"]
+                
+                def create_function_graph(function_str):
+                    return self.create_graph({"function": function_str})
+                
+                new_graph = create_function_graph(params["to_function"])
+                self.persistent_objects["graph"] = new_graph
+                return ReplacementTransform(
+                    old_graph,
+                    new_graph,
+                    run_time=params.get("transition_time", 2)
                 )
+                
+            
+            
+            elif action_type == "coordinate_lines":
+                if not self.persistent_objects["graph"]:
+                    return None
+                    
+                axes = self.persistent_objects["graph"][0]
+                x_val = params["x"]
+                y_val = params["y"]
+                
+                # Create the dot at the specified coordinates
+                dot = Dot(color=RED)
+                dot.move_to(axes.coords_to_point(x_val, y_val))
+                
+                lines_group = VGroup(dot)
+                
+                if params.get("show_coordinates", False):
+                    h_line = DashedLine(
+                        axes.coords_to_point(axes.x_range[0], y_val),
+                        axes.coords_to_point(x_val, y_val),
+                        color=YELLOW
+                    )
+                    
+                    v_line = DashedLine(
+                        axes.coords_to_point(x_val, axes.y_range[0]),
+                        axes.coords_to_point(x_val, y_val),
+                        color=YELLOW
+                    )
+                    
+                    lines_group.add(h_line, v_line)
+                        
+                if "label" in params:
+                    # Convert common mathematical symbols to LaTeX
+                    label_text = params["label"]
+                    # Common replacements
+                    replacements = {
+                        "π": "\\pi",
+                        "θ": "\\theta",
+                        "√": "\\sqrt",
+                        "∞": "\\infty",
+                        "α": "\\alpha",
+                        "β": "\\beta",
+                        "Δ": "\\Delta",
+                        "μ": "\\mu",
+                        "σ": "\\sigma"
+                    }
+                    
+                    for symbol, latex in replacements.items():
+                        label_text = label_text.replace(symbol, latex)
+                        
+                    label = MathTex(label_text).next_to(dot, UR, buff=0.1)
+                    lines_group.add(label)
+                
+                self.persistent_objects["coordinate_lines"][f"{x_val},{y_val}"] = lines_group
+                return Create(lines_group)
+            
+                
+            elif action_type == "text_gradient":
+                text = Text(
+                    params["text"],
+                    gradient=params.get("colors", [BLUE, GREEN]),
+                    direction=params.get("direction", "horizontal")
+                )
+                return Write(text)
+                
+            elif action_type == "grid_layout":
+                # Handle grid layout
+                return None  # Placeholder for grid layout implementation
+            
             else:
                 # If not a MathTex object, just change the entire color
                 highlighted_eq.set_color(color)
                 return ReplacementTransform(equation_obj, highlighted_eq)
-            
-        elif action_type == "graph":
-            graph = self.create_graph(params)
-            if self.persistent_objects["graph"] is None:
-                self.persistent_objects["graph"] = graph
-                return Create(graph)
-            else:
-                old_graph = self.persistent_objects["graph"]
-                self.persistent_objects["graph"] = graph
-                return ReplacementTransform(old_graph, graph)
                 
-        elif action_type == "clear":
-            animations = []
-            target = params.get("target", "all")
-            if target in ["all", "shapes"]:
-                for shape in self.persistent_objects["shapes"]:
-                    animations.append(FadeOut(shape))
-                self.persistent_objects["shapes"] = []
-            return AnimationGroup(*animations) if animations else None
-            
-        elif action_type == "track_point":
-            point = self.create_tracking_point(params)
-            if point:
-                self.persistent_objects["tracking_points"][params["function"]] = point
-                if params.get("animate_to"):
-                    x_start = params["x_value"]
-                    x_end = params["animate_to"]
-                    
-                    def update_point(mob, alpha):
-                        x = x_start + (x_end - x_start) * alpha
-                        y = eval(params["function"].replace("x", str(x)))
-                        mob.move_to(self.persistent_objects["graph"][0].c2p(x, y))
-                    
-                    return UpdateFromAlphaFunc(point, update_point)
-                return Create(point)
-                
-        elif action_type == "function_transform":
-            if not self.persistent_objects["graph"]:
-                return None
-                
-            old_graph = self.persistent_objects["graph"]
-            
-            def create_function_graph(function_str):
-                return self.create_graph({"function": function_str})
-            
-            new_graph = create_function_graph(params["to_function"])
-            self.persistent_objects["graph"] = new_graph
-            return ReplacementTransform(
-                old_graph,
-                new_graph,
-                run_time=params.get("transition_time", 2)
-            )
-            
-        
-        
-        elif action_type == "coordinate_lines":
-            if not self.persistent_objects["graph"]:
-                return None
-                
-            axes = self.persistent_objects["graph"][0]
-            x_val = params["x"]
-            y_val = params["y"]
-            
-            # Create the dot at the specified coordinates
-            dot = Dot(color=RED)
-            dot.move_to(axes.coords_to_point(x_val, y_val))
-            
-            lines_group = VGroup(dot)
-            
-            if params.get("show_coordinates", False):
-                h_line = DashedLine(
-                    axes.coords_to_point(axes.x_range[0], y_val),
-                    axes.coords_to_point(x_val, y_val),
-                    color=YELLOW
-                )
-                
-                v_line = DashedLine(
-                    axes.coords_to_point(x_val, axes.y_range[0]),
-                    axes.coords_to_point(x_val, y_val),
-                    color=YELLOW
-                )
-                
-                lines_group.add(h_line, v_line)
-                    
-            if "label" in params:
-                # Convert common mathematical symbols to LaTeX
-                label_text = params["label"]
-                # Common replacements
-                replacements = {
-                    "π": "\\pi",
-                    "θ": "\\theta",
-                    "√": "\\sqrt",
-                    "∞": "\\infty",
-                    "α": "\\alpha",
-                    "β": "\\beta",
-                    "Δ": "\\Delta",
-                    "μ": "\\mu",
-                    "σ": "\\sigma"
-                }
-                
-                for symbol, latex in replacements.items():
-                    label_text = label_text.replace(symbol, latex)
-                    
-                label = MathTex(label_text).next_to(dot, UR, buff=0.1)
-                lines_group.add(label)
-            
-            self.persistent_objects["coordinate_lines"][f"{x_val},{y_val}"] = lines_group
-            return Create(lines_group)
-        
-            
-        elif action_type == "text_gradient":
-            text = Text(
-                params["text"],
-                gradient=params.get("colors", [BLUE, GREEN]),
-                direction=params.get("direction", "horizontal")
-            )
-            return Write(text)
-            
-        elif action_type == "grid_layout":
-            # Handle grid layout
-            return None  # Placeholder for grid layout implementation
-            
-        return None
+            return None
 
 
     def construct(self):
@@ -652,102 +748,104 @@ class EnhancedMathSolutionScene(Scene):
             font_size=16
         ).to_edge(UL)
         
+        # Add title to scene
         self.play(Write(title))
         self.wait(self.calculate_read_time(self.solution_data['initial_problem'], has_math=True))
 
         current_eq = None
         current_exp_box = None
-        equation_group = VGroup().shift(UP * 2).to_edge(LEFT, buff=1)  # Container for equations
+        equation_group = VGroup().shift(UP * 2).to_edge(LEFT, buff=1)
         
-        for step in self.solution_data["steps"]:
-            # Clear previous step's content if it exists
-            if current_eq:
-                self.remove(current_eq)
+        for i, step in enumerate(self.solution_data["steps"]):
+            # Clear previous explanation box if it exists
             if current_exp_box:
+                self.play(
+                    FadeOut(current_exp_box[0]),
+                    FadeOut(current_exp_box[1]),
+                    FadeOut(current_exp_box[2])
+                )
                 self.remove(current_exp_box)
-                
-            # Create new equation and explanation
-            new_eq = MathTex(step["equation"], color=WHITE)
-            new_eq.move_to(equation_group)  # Position equation in designated area
             
-            new_exp_box = self.create_explanation_box(step["explanation"])
-            
-            # Phase 1: Handle equation transition
+            # Handle equation transformation or creation
+            latex_equation = self.convert_symbols_to_latex(step["equation"])
             if current_eq is None:
+                # First equation - create it
+                new_eq = MathTex(latex_equation, color=WHITE)
+                new_eq.move_to(equation_group)
                 self.play(Write(new_eq), run_time=self.equation_write_time)
             else:
-                self.play(
-                    ReplacementTransform(current_eq, new_eq),
-                    run_time=self.equation_write_time
-                )
+                # Transform existing equation into new one
+                transform_anim, new_eq = self.transform_equation(current_eq, step["equation"])
+                self.play(transform_anim)
             
-            # Wait for equation to be read
-            eq_read_time = self.calculate_read_time(step["equation"], has_math=True)
-            self.wait(eq_read_time)
+            # Create and show new explanation box
+            new_exp_box = self.create_explanation_box(step["explanation"])
+            self.play(
+                FadeIn(new_exp_box[0]),
+                FadeIn(new_exp_box[1]),
+                Write(new_exp_box[2]),
+                run_time=1.5
+            )
             
-            # Phase 2: Bring in explanation
-            if current_exp_box is None:
-                self.play(
-                    FadeIn(new_exp_box[0]),  # Box
-                    FadeIn(new_exp_box[1]),  # Avatar
-                    Write(new_exp_box[2]),   # Text
-                    run_time=1.5
-                )
-            else:
-                self.play(
-                    ReplacementTransform(current_exp_box[0], new_exp_box[0]),  # Box
-                    ReplacementTransform(current_exp_box[1], new_exp_box[1]),  # Avatar
-                    ReplacementTransform(current_exp_box[2], new_exp_box[2]),  # Text
-                    run_time=1.5
-                )
-            
-            # Wait for explanation to be read
-            exp_read_time = self.calculate_read_time(step["explanation"])
-            self.wait(exp_read_time)
-            
-            # Phase 3: Handle animations for this step
-            action_animations = []
+            # Handle additional actions
             for action in step.get("actions", []):
-                # Clear previous graph if we're about to create a new one
-                if action["type"] == "graph" and self.persistent_objects["graph"]:
-                    self.remove(self.persistent_objects["graph"])
-                    self.persistent_objects["graph"] = None
+                if action["type"] == "highlight":
+                    # Convert LaTeX symbols in highlight targets
+                    action["params"]["target"] = self.convert_symbols_to_latex(action["params"]["target"])
+                
+                animation = self.handle_action(action, new_eq)
+                if animation is not None:
+                    if isinstance(animation, (list, tuple)):
+                        self.play(*animation, run_time=2)
+                    else:
+                        self.play(animation, run_time=2)
                     
-                action_animation = self.handle_action(action, new_eq)
-                if action_animation:
-                    action_animations.append(action_animation)
+                    # If this was a highlight action, update the current equation
+                    if action["type"] == "highlight" and isinstance(animation, (list, tuple)):
+                        new_eq = animation[-1].mobject
             
-            if action_animations:
-                self.play(*action_animations, run_time=2)
-                self.wait(0.5)  # Brief pause after actions
-            
+            # Update current objects
             current_eq = new_eq
             current_exp_box = new_exp_box
-            
-            # Brief pause before next step
             self.wait(self.transition_pause)
 
-        # Create final explanation combining final answer and context
-        final_text = f"Final Answer: {self.solution_data['final_answer']}\n\n{self.solution_data['solution_context']}"
+        # Handle final step
+        final_clear_animations = []
+        if current_eq:
+            final_clear_animations.append(FadeOut(current_eq))
+        if current_exp_box:
+            final_clear_animations.extend([
+                FadeOut(current_exp_box[0]),
+                FadeOut(current_exp_box[1]),
+                FadeOut(current_exp_box[2])
+            ])
+        if final_clear_animations:
+            self.play(*final_clear_animations)
+            self.remove(*[anim.mobject for anim in final_clear_animations])
+        
+        # Show final answer
+        final_answer = self.convert_symbols_to_latex(self.solution_data['final_answer'])
+        final_text = f"Final Answer: {final_answer}\n\n{self.solution_data['solution_context']}"
         final_exp_box = self.create_explanation_box(final_text)
         
-        # Clean up previous objects
-        if current_eq:
-            self.play(FadeOut(current_eq))
-        if current_exp_box:
-            self.play(
-                ReplacementTransform(current_exp_box[0], final_exp_box[0]),  # Box
-                ReplacementTransform(current_exp_box[1], final_exp_box[1]),  # Avatar
-                ReplacementTransform(current_exp_box[2], final_exp_box[2])   # Text
-            )
-        
-        # Wait for final explanation and answer to be read
-        final_read_time = self.calculate_read_time(final_text, has_math=True)
-        self.wait(final_read_time)
-        
-        # Clean up
         self.play(
-            FadeOut(title),
-            FadeOut(final_exp_box),
-            FadeOut(self.persistent_objects["graph"]) if self.persistent_objects["graph"] else None
+            FadeIn(final_exp_box[0]),
+            FadeIn(final_exp_box[1]),
+            Write(final_exp_box[2])
         )
+        self.wait(self.calculate_read_time(final_text, has_math=True))
+        
+        # Final cleanup
+        cleanup_animations = [FadeOut(title)]
+        if final_exp_box:
+            cleanup_animations.extend([
+                FadeOut(final_exp_box[0]),
+                FadeOut(final_exp_box[1]),
+                FadeOut(final_exp_box[2])
+            ])
+        if self.persistent_objects["graph"]:
+            cleanup_animations.append(FadeOut(self.persistent_objects["graph"]))
+        
+        if cleanup_animations:
+            self.play(*cleanup_animations)
+            self.remove(*[anim.mobject for anim in cleanup_animations])
